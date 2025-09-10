@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <form class="add-form" action="{{ url_for('add') }}" method="post">
+    <input type="text" name="title" placeholder="Task title…" required>
+    <select name="priority" aria-label="Priority">
+      <option value="low">low</option>
+      <option value="med" selected>med</option>
+      <option value="high">high</option>
+    </select>
+    <input type="date" name="due" aria-label="Due date">
+    <button type="submit">Add</button>
+  </form>
+
+  <div class="filters">
+    <a class="{{ 'active' if show!='all' else '' }}" href="{{ url_for('index', show='open') }}">Open ({{ counts.open }})</a>
+    <a class="{{ 'active' if show=='all' else '' }}" href="{{ url_for('index', show='all') }}">All ({{ counts.total }})</a>
+    <span class="done">Done: {{ counts.done }}</span>
+  </div>
+</section>
+
+<ul class="task-list">
+  {% if tasks|length == 0 %}
+    <li class="empty">No tasks to show.</li>
+  {% endif %}
+  {% for t in tasks %}
+    <li class="task {{ 'done' if t.done }}">
+      <div class="left">
+        <form action="{{ url_for('toggle', task_id=t.id, show=show) }}" method="post">
+          <button title="Toggle done" class="checkbox">{{ '✔' if t.done else '○' }}</button>
+        </form>
+        <div class="title">
+          <strong>{{ t.title }}</strong>
+          <div class="meta">
+            <span class="badge {{ t.priority }}">{{ t.priority }}</span>
+            {% if t.due %}<span class="due">Due {{ t.due }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <form action="{{ url_for('delete', task_id=t.id, show=show) }}" method="post">
+        <button class="danger" title="Delete">Delete</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
